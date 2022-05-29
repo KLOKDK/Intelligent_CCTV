@@ -20,14 +20,15 @@ print(codec, type(codec))
 # # print(codec)
 out = cv2.VideoWriter(output_path, codec, fps, (1200, 900)) 
 
-#fgbg = cv2.createBackgroundSubtractorKNN(detectShadows=False)
+fgbg = cv2.createBackgroundSubtractorKNN(detectShadows=False)
 #fgbg = cv2.bgsegm.createBackgroundSubtractorMOG(history=200,nmixtures=3,backgroundRatio=0.7, noiseSigma=0)
-fgbg = cv2.createBackgroundSubtractorMOG2(history=800,varThreshold=10,detectShadows=False)
+#fgbg = cv2.createBackgroundSubtractorMOG2(history=200,varThreshold=16,detectShadows=False)
 #fgbg = cv2.bgsegm.createBackgroundSubtractorGMG(initializationFrames=20, decisionThreshold=0.5)
 
 
-# kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(7,7))
-kernel = cv2.getStructuringElement(cv2.MORPH_RECT,(7,7))
+kernel = cv2.getStructuringElement(cv2.MORPH_RECT,(1,1))
+close_kernel = np.ones((10,10), np.uint8)
+#kernel = cv2.getStructuringElement(cv2.MORPH_RECT,(7,7))
 time_cost = 0
 fps_cost = 0
 frame_num = 0
@@ -39,7 +40,7 @@ while(1):
     
     return_value, frame = video.read()
 
-    # 비디오 프레임 정보가 있으면 계속 진행 
+    # 저장 비디오 프레임 정보가 있으면 계속 진행 
     if return_value:
         pass
     else : 
@@ -49,7 +50,8 @@ while(1):
     frame = cv2.resize(frame,(1200,900))
     
     background_extraction_mask = fgbg.apply(frame)
-    background_extraction_mask = cv2.morphologyEx(background_extraction_mask, cv2.MORPH_CLOSE, kernel)
+    background_extraction_mask = cv2.morphologyEx(background_extraction_mask, cv2.MORPH_OPEN, kernel)
+    background_extraction_mask = cv2.morphologyEx(background_extraction_mask, cv2.MORPH_CLOSE, close_kernel)
     #background_extraction_mask = cv2.dilate(background_extraction_mask,kernel,iterations=1)
 
     background_extraction_mask = np.stack((background_extraction_mask,)*3, axis=-1)
@@ -68,7 +70,7 @@ while(1):
     print('소요 시간 : {:.2f} ms \t 평균FPS : {:.2f}'.format(time_temp,fps_temp))
 
     cv2.imshow('background extraction video', concat_image)
-    out.write(bitwise_image)
+#   out.write(bitwise_image)
 #    cv2.waitKey(0)
     if cv2.waitKey(1)>0:
         break
