@@ -1,5 +1,0 @@
-classes = 3
-train  = /content/Face_Mask_Detection_YOLO/data/train.txt
-valid  = /content/Face_Mask_Detection_YOLO/data/val.txt
-names = /content/Face_Mask_Detection_YOLO/MASK/object.names
-backup = /content/darknet/backup/
