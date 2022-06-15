@@ -12,7 +12,7 @@ def padding(img, width, height):
 video_path = 'test_Trim.mp4'
 output_path = './background_subtraction_output.mp4'
 
-video = cv2.VideoCapture(video_path)
+video = cv2.VideoCapture(0)
 
 width = int(video.get(cv2.CAP_PROP_FRAME_WIDTH))
 height = int(video.get(cv2.CAP_PROP_FRAME_HEIGHT))
@@ -75,12 +75,13 @@ if video.isOpened():
 
         # 배경만 존재하는 프레임
         background_image = cv2.bitwise_and(frame, background_inverse)
+        background_image = cv2.bilateralFilter(background_image, -1, 10, 2)
 
         background_extraction_output = bitwise_image.copy()
-        background_concat_image = np.concatenate((background_inverse, background_image), axis=1)
         
-        # Mask Detection
-        blob = cv2.dnn.blobFromImage(bitwise_image, 1 / 255.0, (864, 864),(0,0,0),True,crop=False)
+        
+        # Mask Detection (864,864)
+        blob = cv2.dnn.blobFromImage(bitwise_image, 1 / 255.0, (604, 604),(0,0,0),True,crop=False)
         YOLO_net.setInput(blob)
         outs = YOLO_net.forward(output_layers)
 
@@ -139,13 +140,14 @@ if video.isOpened():
         third_bitwise_image = bitwise_image[360:,:540]
         background_extraction_output = background_extraction_output[360:,:540]
         object_image = object_image[360:,:540]
+        #result = result[360:,:540]
   
         #cv2.imshow('result',result)
         #cv2.imshow('ptz',ptz)
         #cv2.imshow('3 camera', third_camera)
         #cv2.imshow('With YOLO', object_image)
-        cv2.imshow('with YOLO', third_bitwise_image)
-        output_video.write(third_bitwise_image)
+        cv2.imshow('with YOLO', result)
+        output_video.write(result)
 
 video.release()
 cv2.destroyAllWindows()
